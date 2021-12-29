@@ -1,0 +1,55 @@
+version: '3.3'
+networks:
+  default:
+    external:
+      name: external-nextjs
+services:
+  nextjsclient:
+    restart: always
+    image: nextjsmuiapolloclient:latest
+    depends_on:
+      - nestpython
+    ports:
+      - '3000:3000'
+    environment:
+      - TZ=Europe/Istanbul
+      - TOOLBAR_COLOR=blue
+      - GRAPHQL_URL_CLIENT=http://localhost:3100/graphql
+      - GRAPHQL_URL_SSR=http://nestpython:3100/graphql
+      - LDAP_HOST=<your-ldap-host>
+      - LDAP_DN=CN=<your-ldap-dn>
+      - LDAP_PASSWORD=<your-ldap-password>
+      - LDAP_BASE_DN=<your-base-dn>
+      - TOKEN_MAX_AGE=600
+
+  nestpython:
+    restart: always
+    image: nestjsgraphql:py2
+    ports:
+      - '3100:3100'
+    environment:
+      - TZ=Europe/Istanbul
+      - DB_NAME=countrydb
+      - DB_HOST=postgresql
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+
+  postgresql:
+    restart: always
+    image: postgres:12.9
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=countrydb
+      - PGUSER=postgres
+      - PG_TRUST_LOCALNET=true
+    volumes:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5

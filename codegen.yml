@@ -1,0 +1,23 @@
+schema: http://localhost:3100/graphql
+documents:
+  - ./src/gql_definitions/queries.ts
+  - ./src/gql_definitions/mutations.ts
+overwrite: true
+generates:
+  ./src/graphql/types.tsx:
+    plugins:
+      - add:
+          content: '/* eslint-disable */'
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+      - typescript-resolvers
+    # The combined options of all provided plug-ins
+    # More information about the options below:
+    # graphql-code-generator.com/docs/plugins/typescript-react-apollo#configuration
+    config:
+      withHOC: false
+      withHooks: true
+      withComponent: false
+      namingConvention:
+        enumValues: 'change-case-all#pascalCase'
